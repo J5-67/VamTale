@@ -112,7 +112,7 @@ public class WeaponController : MonoBehaviour
             Vector3 rotVec = Vector3.forward * 360 * i / count;
             bullet.Rotate(rotVec);
             bullet.Translate(bullet.up * 1.5f, Space.World);
-            bullet.GetComponent<BulletController>().Init(damage, -1, Vector3.zero);
+            bullet.GetComponent<BulletController>().Init(damage, -100, Vector3.zero);
         }
     }
 

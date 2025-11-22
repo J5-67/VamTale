@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 
 public class PlayerController : MonoBehaviour
@@ -18,8 +19,7 @@ public class PlayerController : MonoBehaviour
     {
         TryGetComponent(out rg);
         TryGetComponent(out an);
-        sc = GetComponent<Scanner>();
-        //TryGetComponent(out sc);
+        TryGetComponent<Scanner>(out sc);
     }
 
     private void FixedUpdate()
@@ -49,11 +49,11 @@ public class PlayerController : MonoBehaviour
 
         an.SetBool("IsMoving", IsMoving);
 
-        if(IsMoving)
+        if (IsMoving)
         {
             Vector2 anInput = input;
 
-            if(anInput.y < -0.01f)
+            if (anInput.y < -0.01f)
             {
                 anInput.x = 0;
                 anInput.y = -1;
@@ -67,5 +67,25 @@ public class PlayerController : MonoBehaviour
     private void OnMove(InputValue value)
     {
         input = value.Get<Vector2>();
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (!GameManager.instance.isLive)
+        {
+            return;
+        }
+
+        GameManager.instance.health -= Time.deltaTime * 10;
+
+        if (GameManager.instance.health < 0)
+        {
+            for (int i = 2; i < transform.childCount; i++)
+            {
+                transform.GetChild(i).gameObject.SetActive(false);
+            }
+
+            SceneManager.LoadScene("GameOver");
+        }
     }
 }
