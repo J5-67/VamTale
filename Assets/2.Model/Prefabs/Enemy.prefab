@@ -198,8 +198,11 @@ MonoBehaviour:
   health: 0
   maxHealth: 0
   anCon:
+  - {fileID: 9100000, guid: 9ab1ac21410aa7949bb74225372744bd, type: 2}
   - {fileID: 9100000, guid: f03d911958855f349b18c89136fe3b42, type: 2}
+  - {fileID: 9100000, guid: 21732678e4d7d2944a6ba7e410628e66, type: 2}
   - {fileID: 9100000, guid: 72cc109cc1cb63e46b3532860bab270a, type: 2}
+  - {fileID: 9100000, guid: 6c4a41ace1b9872418ebc580543b030e, type: 2}
 --- !u!114 &4690452213105391782
 MonoBehaviour:
   m_ObjectHideFlags: 0

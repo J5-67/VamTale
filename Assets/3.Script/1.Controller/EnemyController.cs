@@ -38,10 +38,6 @@ public class EnemyController : MonoBehaviour
         isLive = true;
         isKnockBack = false;
         health = maxHealth;
-        //co.enabled = true;
-        //rg.simulated = true;
-        //sp.sortingOrder = 2;
-        //죽는 애니메이션 an.SetBol("Dead", false);
     }
 
     private void FixedUpdate()
@@ -103,11 +99,7 @@ public class EnemyController : MonoBehaviour
         else
         {
             isLive = false;
-            //co.enabled = false;
-            //rg.simulated = false;
-            //sp.sortingOrder = 1;
-            //죽는 애니메이션 an.SetBol("Dead", true);
-            Dead(); //9강 17분 애니메이션으로 실행하기 보기.
+            Dead();
             GameManager.instance.kill++;
             GameManager.instance.GetExp();
         }
