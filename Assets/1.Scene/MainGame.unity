@@ -4112,12 +4112,13 @@ MonoBehaviour:
   maxGameTime: 100
   poolManager: {fileID: 840447003}
   uiLevelUp: {fileID: 1585741903}
+  startGroup: {fileID: 1211775832}
   health: 0
   maxHealth: 100
   level: 0
   kill: 0
   exp: 0
-  nextExp: 0100000001000000010000000100000001000000010000000100000001000000010000000a000000
+  nextExp: 01000000
 --- !u!4 &839761652
 Transform:
   m_ObjectHideFlags: 0
@@ -4169,6 +4170,7 @@ MonoBehaviour:
   - {fileID: 7069396838388798658, guid: 0d697b15761d0f34faba91b2c6f74197, type: 3}
   - {fileID: 6632593613523874189, guid: 4ad95ec6292d9114d876117fe77ae419, type: 3}
   - {fileID: 8558713019521465855, guid: 424e4c0d7b5e92f48937d70f2056ba3d, type: 3}
+  - {fileID: 6991843893819614573, guid: bee4f1d0ae64c134588f8e4801a8b2c5, type: 3}
 --- !u!4 &840447004
 Transform:
   m_ObjectHideFlags: 0
@@ -5440,7 +5442,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1209588094}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -5449,8 +5451,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0004425, y: -0.000099182}
-  m_SizeDelta: {x: 45.143, y: 11.865}
+  m_AnchoredPosition: {x: 0.00000059605, y: 0.00000084937}
+  m_SizeDelta: {x: 12, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1209588096
 MonoBehaviour:
@@ -5537,7 +5539,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 5.040228, z: 0.0000059619365, w: 4.9306602}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -5566,7 +5568,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1211775833
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7092,8 +7094,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.4, y: -17}
-  m_SizeDelta: {x: 45.14375, y: 11.8648}
+  m_AnchoredPosition: {x: -1.4, y: -17.6}
+  m_SizeDelta: {x: 12, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1505616495
 MonoBehaviour:
@@ -7135,7 +7137,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 1505616496}
+  m_TargetGraphic: {fileID: 1209588096}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:

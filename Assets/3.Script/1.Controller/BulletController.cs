@@ -12,35 +12,43 @@ public class BulletController : MonoBehaviour
 
     private void Awake()
     {
-        TryGetComponent(out rg);
+        rg = GetComponent<Rigidbody2D>();
     }
 
-    public void Init(float damage, int per, Vector3 dir)
+    public void Init(float damage, int per, Vector3 dir, float speed = 15f)
     {
         this.damage = damage;
         this.per = per;
 
-        if (per >= 0)
+        if (per > -1)
         {
-            rg.linearVelocity = dir * 15f;
+            if (rg != null)
+            {
+                rg.linearVelocity = dir * speed;
+            }
         }
     }
 
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Enemy") || per == -100)
-        {
+        if (!collision.CompareTag("Enemy") || per == -1)
             return;
-        }
 
         per--;
 
         if (per < 0)
         {
             rg.linearVelocity = Vector2.zero;
-            gameObject.SetActive(false);
+
+            StartCoroutine(DisableBullet());
         }
+    }
+
+    IEnumerator DisableBullet()
+    {
+        yield return new WaitForFixedUpdate();
+
+        gameObject.SetActive(false);
     }
 
     private void OnTriggerExit2D(Collider2D collision)

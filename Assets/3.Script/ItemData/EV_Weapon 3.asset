@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ad7b3ffa36f3e498574ed441ca6820, type: 3}
+  m_Name: EV_Weapon 3
+  m_EditorClassIdentifier: Assembly-CSharp::ItemData
+  itemType: 2
+  itemId: 3
+  itemName: "\uBC88\uAC1C"
+  itemDesc: "\uC634\uCD1D\uB09C \uBC88\uAC1C"
+  itemIcon: {fileID: 477559967506130833, guid: 6f7392dcc5dd4a943aac78f5c3351f35, type: 3}
+  baseDamage: 30
+  baseCount: 10
+  damages: []
+  counts: 
+  projectile: {fileID: 6991843893819614573, guid: bee4f1d0ae64c134588f8e4801a8b2c5, type: 3}
+  megaWeapon: {fileID: 0}
+  needItem: {fileID: 0}

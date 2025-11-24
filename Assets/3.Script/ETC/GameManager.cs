@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
+
     [Header("게임 매니저")]
     [SerializeField] public PlayerController player;
     public bool isLive;
@@ -13,6 +14,10 @@ public class GameManager : MonoBehaviour
     public float maxGameTime = 2 * 10f;
     public PoolManager poolManager;
     public LevelUp uiLevelUp;
+
+    // [유니 추가] 스타트 화면(버튼 포함한 그룹)을 끄기 위해 변수 추가!
+    public GameObject startGroup;
+
     [Header("플레이어 정보")]
     public float health;
     public float maxHealth = 100;
@@ -24,19 +29,28 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        Time.timeScale = 1;
     }
 
-    //public void GameStart()
-    //{
-    //    health = maxHealth;
-    //
-    //    uiLevelUp.Select(0);
-    //    isLive = true;
-    //}
+    private void Start()
+    {
+        if (PlayerPrefs.GetInt("IsRestart") == 1)
+        {
+            PlayerPrefs.SetInt("IsRestart", 0);
+            PlayerPrefs.Save();
 
-    public void Start()
+            GameStart();
+        }
+    }
+
+    public void GameStart()
     {
         health = maxHealth;
+
+        if (startGroup != null)
+        {
+            startGroup.SetActive(false);
+        }
 
         uiLevelUp.Select(0);
         isLive = true;
@@ -61,7 +75,7 @@ public class GameManager : MonoBehaviour
     {
         exp++;
 
-        if(exp == nextExp[Mathf.Min(level, nextExp.Length-1)])
+        if (exp == nextExp[Mathf.Min(level, nextExp.Length - 1)])
         {
             level++;
             exp = 0;
@@ -80,5 +94,4 @@ public class GameManager : MonoBehaviour
         isLive = true;
         Time.timeScale = 1;
     }
-
 }

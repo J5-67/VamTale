@@ -55,13 +55,21 @@ public class Gear : MonoBehaviour
 
         foreach (WeaponController weapon in weapons)
         {
-            switch (weapon.id)
+            switch (weapon.data.itemType)
             {
-                case 0:
-                    weapon.speed = 150 + (150 * rate);
+                case ItemType.Melee:
+                    float speedMelee = 150 + (150 * rate);
+                    weapon.speed = Mathf.Min(speedMelee, 200f);
                     break;
-                default:
-                    weapon.speed = 0.5f * (1f - rate);
+
+                case ItemType.Range:
+                    float speedRange = 0.5f * (1f - rate);
+                    weapon.speed = Mathf.Max(speedRange, 0.4f);
+                    break;
+
+                case ItemType.Lightning:
+                    float speedLightning = 0.8f * (1f - rate);
+                    weapon.speed = Mathf.Max(speedLightning, 0.25f);
                     break;
             }
         }
