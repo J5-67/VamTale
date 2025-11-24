@@ -29,7 +29,7 @@ public class RandomSpearController : MonoBehaviour
             // 아크탄젠트로 각도 구하기 (이건 오른쪽 기준 각도야)
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
 
-            // [유니 수정] 오빠 그림이 "위쪽"을 보고 있으니까 90도를 빼줘야 정면이 돼!
+            // 그림이 "위쪽"을 보고 있으니까 90도를 빼줘야 정면이 돼!
             transform.rotation = Quaternion.Euler(0, 0, angle - 90);
         }
 

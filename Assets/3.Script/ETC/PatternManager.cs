@@ -25,19 +25,9 @@ public class PatternManager : MonoBehaviour
     void Update()
     {
         UpdateNearestSpear();
-
-        // [유니] 테스트용 치트키! 스페이스바를 누르면 랜덤 소환!
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            //StartCirclePattern();
-            StartRandomPattern();
-            //int randomDir = Random.Range(0, 4);
-            //bool randomTrick = Random.Range(0, 2) == 0; // 50% 확률
-            //SpawnSpear(randomDir, randomTrick);
-        }
     }
 
-    public void StartPattern(EnemyData data, Vector3 pos)
+    public void StartShieldPattern()
     {
         StartCoroutine(SpawnSpears_co());
     }

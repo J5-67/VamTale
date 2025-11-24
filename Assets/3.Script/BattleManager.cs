@@ -1,15 +1,16 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 
 public enum BattleState
 {
-    Dialogue,   // 대화 상태
-    Attack,     // 공격 타이밍 맞추기
-    EnemyTurn,  // 적 턴 (패턴 회피)
-    Win,        // 승리
-    Lose        // 패배
+    Dialogue,       // 1. 내 턴 (메뉴 선택 / FIGHT 버튼 위)
+    EnemySelect,    // 2. 적 선택
+    Attack,         // 3. 공격 게이지
+    EnemyTurn,      // 4. 적 턴 (방어/회피)
+    Win,
+    Lose
 }
 
 public class BattleManager : MonoBehaviour
@@ -18,30 +19,44 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private EnemyData targetEnemy;
     [SerializeField] private PatternManager patternManager;
 
-    [Header("--- UI 오브젝트 ---")]
-    [SerializeField] private GameObject playerRedHeart;
-    [SerializeField] private GameObject playerGreenHeart;
-    [SerializeField] private GameObject dialogueBox;
+    [Header("--- 하트 4총사 ---")]
+    [SerializeField] private GameObject menuRedHeart;    // 메뉴용 (빨강)
+    [SerializeField] private GameObject menuGreenHeart;  // 메뉴용 (초록)
+    [SerializeField] private GameObject combatRedHeart;  // 전투용 (빨강)
+    [SerializeField] private GameObject combatGreenHeart;// 전투용 (초록)
 
-    // [유니 수정] 배틀 박스를 3개로 관리! (0: 작음, 1: 중간, 2: 큼 등)
+    [Header("--- 하트 위치 (빈 오브젝트 연결) ---")]
+    private Vector3 posOnButton = new Vector3(-1.05f, -4.2f, -5f);
+    private Vector3 posOnSelect = new Vector3(-5.13f, -0.10f, -5f); 
+
+    [Header("--- 배틀 박스 (Collider 필수) ---")]
+    // 0: 방패 패턴용(작음), 1: 원형 패턴용(중간), 2: 랜덤 패턴용(큼)
     [SerializeField] private GameObject[] battleBoxes;
 
-    [SerializeField] private TMP_Text dialogueText;
+    [Header("--- UI 오브젝트 ---")]
+    [SerializeField] private GameObject dialogueBox;     // 흰색 배경 (DialogueWhite)
+    [SerializeField] private GameObject enemySelectPanel;// 적 선택 패널
+    [SerializeField] private Slider enemyHPSlider;
+    [SerializeField] private TMP_Text dialogueText;      // 대화 텍스트
+
+    [Header("--- 공격 버튼 스프라이트 (수정됨!) ---")]
+    // [유니 수정] 오빠 말대로 SpriteRenderer로 변경했어!
+    [SerializeField] private SpriteRenderer fightButtonRenderer;
+    [SerializeField] private Sprite fightNormalSprite;   // 평소 이미지 (주황색/흰색)
+    [SerializeField] private Sprite fightHighlightSprite;// 하트 올라갔을 때 이미지 (초록색 등)
 
     [Header("--- 공격 UI ---")]
     [SerializeField] private GameObject attackPanel;
     [SerializeField] private Transform attackCursor;
     [SerializeField] private float cursorSpeed = 500f;
+    [SerializeField] private GameObject[] damageNumberPrefabs;
     private bool isCursorMovingRight = true;
     private float attackWidth = 500f;
 
-    [Header("--- 데미지 연출 ---")]
-    // [유니 추가] 낮은 데미지(빗맞음) -> 높은 데미지(정중앙) 순서로 넣어줘!
-    [SerializeField] private GameObject[] damageNumberPrefabs;
-
+    // 내부 변수
     private BattleState state;
     private int currentHP;
-    private int currentBoxIndex = 0; // 현재 활성화된 배틀 박스 번호
+    public bool isGreenMode = true; // 시작은 초록 하트
 
     void Start()
     {
@@ -49,11 +64,21 @@ public class BattleManager : MonoBehaviour
         {
             targetEnemy.CalEnemyHP();
             currentHP = targetEnemy.CurrentHP;
+            if (enemyHPSlider != null)
+            {
+                enemyHPSlider.maxValue = targetEnemy.MaxHP;
+                enemyHPSlider.value = currentHP;
+            }
         }
 
         // 초기화
-        attackPanel.SetActive(false);
+        DisableAllHearts();
         CloseAllBattleBoxes();
+        attackPanel.SetActive(false);
+        enemySelectPanel.SetActive(false);
+        // 시작 상태 설정
+        isGreenMode = true;
+        menuGreenHeart.transform.position = posOnButton;
         ChangeState(BattleState.Dialogue);
     }
 
@@ -62,12 +87,32 @@ public class BattleManager : MonoBehaviour
         switch (state)
         {
             case BattleState.Dialogue:
-                if (Input.GetKeyDown(KeyCode.Z)) ChangeState(BattleState.Attack);
+                // Z키 누르면 적 선택 화면으로 이동
+                if (Input.GetKeyDown(KeyCode.Z))
+                {
+                    ChangeState(BattleState.EnemySelect);
+                }
+                break;
+
+            case BattleState.EnemySelect:
+                // Z키 누르면 공격 시작
+                if (Input.GetKeyDown(KeyCode.Z))
+                {
+                    ChangeState(BattleState.Attack);
+                }
+                // X키 누르면 다시 메뉴로 돌아가기
+                if (Input.GetKeyDown(KeyCode.X))
+                {
+                    ChangeState(BattleState.Dialogue);
+                }
                 break;
 
             case BattleState.Attack:
                 MoveAttackCursor();
-                if (Input.GetKeyDown(KeyCode.Z)) ExecuteAttack();
+                if (Input.GetKeyDown(KeyCode.Z))
+                {
+                    ExecuteAttack();
+                }
                 break;
         }
     }
@@ -76,39 +121,160 @@ public class BattleManager : MonoBehaviour
     {
         state = newState;
 
-        // UI 상태 정리
-        dialogueBox.SetActive(false);
-        CloseAllBattleBoxes(); // 배틀 박스 끄기
+        // UI 상태 초기화
+        DisableAllHearts();
+        CloseAllBattleBoxes();
         attackPanel.SetActive(false);
-        playerRedHeart.SetActive(false);
+
+        // [수정] 버튼 스프라이트 초기화 (평소 상태로)
+        if (fightButtonRenderer != null && fightNormalSprite != null)
+            fightButtonRenderer.sprite = fightNormalSprite;
 
         switch (state)
         {
             case BattleState.Dialogue:
+                // DialogueBox(배경) 켜기, 텍스트 켜기, 적 선택창 끄기
                 dialogueBox.SetActive(true);
-                playerRedHeart.SetActive(true);
-                // 대화 상태일 때 하트 위치 (예: 대화창 왼쪽)
-                playerRedHeart.transform.localPosition = new Vector3(-300, -200, 0);
-                if (dialogueText != null) dialogueText.text = $"야생의 {targetEnemy.EnemyName}이(가) 승부를 걸어왔다!";
+                if (dialogueText != null) dialogueText.gameObject.SetActive(true);
+                enemySelectPanel.SetActive(false);
+
+                // 메뉴용 하트 켜기 (버튼 위 위치)
+                ActivateMenuHeart(posOnButton);
+
+                // [수정] 버튼 하이라이트 켜기 (SpriteRenderer)
+                if (fightButtonRenderer != null && fightHighlightSprite != null)
+                    fightButtonRenderer.sprite = fightHighlightSprite;
+
+                if (dialogueText != null)
+                    dialogueText.text = $"* 영웅이 나타났다";
+                break;
+
+            case BattleState.EnemySelect:
+                // DialogueBox(배경) 유지, 텍스트만 끄기
+                dialogueBox.SetActive(true);
+                if (dialogueText != null) dialogueText.gameObject.SetActive(false);
+
+                enemySelectPanel.SetActive(true);
+
+                // 메뉴용 하트 켜기 (적 선택 위치)
+                ActivateMenuHeart(posOnSelect);
                 break;
 
             case BattleState.Attack:
+                // 공격 중에도 배경은 켜두기
+                dialogueBox.SetActive(true);
+                if (dialogueText != null) dialogueText.gameObject.SetActive(false);
+                enemySelectPanel.SetActive(false);
+
                 attackPanel.SetActive(true);
-                if (attackCursor != null) attackCursor.localPosition = new Vector3(-attackWidth / 2, 0, 0);
+                if (attackCursor != null)
+                    attackCursor.localPosition = new Vector3(-attackWidth / 2, 0, 0);
                 break;
 
             case BattleState.EnemyTurn:
-                // [유니] 적 턴 시작할 때 정해진 박스 켜기
-                if (battleBoxes != null && battleBoxes.Length > currentBoxIndex)
-                {
-                    battleBoxes[currentBoxIndex].SetActive(true);
-                }
+                dialogueBox.SetActive(false); // 적 턴엔 대화창 끄기
+                enemySelectPanel.SetActive(false);
 
-                playerRedHeart.SetActive(true);
-                playerRedHeart.transform.position = Vector3.zero; // 박스 중앙으로 이동
                 StartCoroutine(EnemyPattern_co());
                 break;
         }
+    }
+
+    // [유니] 메뉴 하트 활성화
+    void ActivateMenuHeart(Vector3 localPos)
+    {
+        GameObject heartToUse = isGreenMode ? menuGreenHeart : menuRedHeart;
+        if (heartToUse != null)
+        {
+            heartToUse.SetActive(true);
+            heartToUse.transform.localPosition = localPos;
+        }
+    }
+
+    IEnumerator EnemyPattern_co()
+    {
+        // 1. 패턴 및 박스 결정
+        int boxIndex = 0;
+        bool useGreenCombat = false;
+
+        if (isGreenMode)
+        {
+            boxIndex = 0; // 방패 패턴용 작은 박스
+            useGreenCombat = true;
+        }
+        else
+        {
+            int rnd = Random.Range(0, 2);
+            boxIndex = (rnd == 0) ? 1 : 2; // 1:원형(중간), 2:랜덤(큰)
+            useGreenCombat = false;
+        }
+
+        // 2. 박스 켜기 및 이동 제한 설정
+        if (battleBoxes != null && battleBoxes.Length > boxIndex)
+        {
+            GameObject activeBox = battleBoxes[boxIndex];
+            activeBox.SetActive(true);
+
+            // [중요] 빨간 하트 이동 범위 설정
+            BoxCollider2D boxCol = activeBox.GetComponent<BoxCollider2D>();
+            if (boxCol != null && !useGreenCombat)
+            {
+                combatRedHeart.GetComponent<HeartController>().SetBoundaries(boxCol.bounds);
+            }
+        }
+
+        // 3. 전투용 하트 켜기
+        GameObject combatHeart = useGreenCombat ? combatGreenHeart : combatRedHeart;
+        if (combatHeart != null)
+        {
+            combatHeart.SetActive(true);
+            combatHeart.transform.localPosition = Vector3.zero;
+
+            // 빨간 하트라면 이동 스크립트 활성화
+            if (!useGreenCombat)
+                combatHeart.GetComponent<HeartController>().SetBattleMode(true);
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        // 4. 패턴 실행
+        if (patternManager != null)
+        {
+            if (isGreenMode) patternManager.StartShieldPattern(); // 4방향 방패 (함수 이름 확인!)
+            else
+            {
+                if (boxIndex == 1) patternManager.StartCirclePattern(); // 원형
+                else patternManager.StartRandomPattern(); // 랜덤 돌진 (함수 이름 확인!)
+            }
+        }
+
+        yield return new WaitForSeconds(5.0f); // 패턴 지속 시간
+
+        if (patternManager != null) patternManager.StopMonsterAttack();
+
+        // 이동 멈춤
+        if (!useGreenCombat && combatRedHeart != null)
+            combatRedHeart.GetComponent<HeartController>().SetBattleMode(false);
+
+        // 턴 종료 후 모드 전환
+        isGreenMode = !isGreenMode;
+
+        ChangeState(BattleState.Dialogue);
+    }
+
+    // --- 기본 기능들 ---
+    void DisableAllHearts()
+    {
+        if (menuRedHeart) menuRedHeart.SetActive(false);
+        if (menuGreenHeart) menuGreenHeart.SetActive(false);
+        if (combatRedHeart) combatRedHeart.SetActive(false);
+        if (combatGreenHeart) combatGreenHeart.SetActive(false);
+    }
+
+    void CloseAllBattleBoxes()
+    {
+        if (battleBoxes == null) return;
+        foreach (var box in battleBoxes) if (box != null) box.SetActive(false);
     }
 
     void MoveAttackCursor()
@@ -128,36 +294,30 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // [유니 핵심 수정] 공격 실행 로직
     void ExecuteAttack()
     {
-        // 1. 정확도 계산 (1.0 = 정중앙, 0.0 = 끝)
         float distance = Mathf.Abs(attackCursor.localPosition.x);
         float accuracy = 1f - (distance / (attackWidth / 2));
         accuracy = Mathf.Clamp(accuracy, 0f, 1f);
 
-        // 2. 실질적 데미지는 무조건 1 (오빠 요청!)
         int realDamage = 1;
-
-        // (선택) 너무 빗나갔으면(정확도 10% 미만) MISS 처리 할까?
         if (accuracy < 0.1f) realDamage = 0;
 
         if (realDamage > 0)
         {
             currentHP -= realDamage;
-            // 3. 정확도에 따른 비주얼 데미지 숫자 띄우기! 
+            if (enemyHPSlider != null) enemyHPSlider.value = currentHP;
             SpawnDamageNumber(accuracy);
         }
         else
         {
-            Debug.Log("MISS! 빗나갔다...");
+            Debug.Log("MISS!");
         }
 
-        // 4. 죽음 체크
         if (currentHP <= 0)
         {
             ChangeState(BattleState.Win);
-            BattleEnd();
+            Debug.Log("승리!");
         }
         else
         {
@@ -165,56 +325,11 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    // [유니 추가] 데미지 숫자 이미지 생성 함수
     void SpawnDamageNumber(float accuracy)
     {
         if (damageNumberPrefabs == null || damageNumberPrefabs.Length == 0) return;
-
-        // 정확도(0~1)를 배열 인덱스로 변환
-        // 예: 이미지가 3개라면 [0:나쁨, 1:보통, 2:완벽]
         int index = Mathf.FloorToInt(accuracy * damageNumberPrefabs.Length);
         index = Mathf.Clamp(index, 0, damageNumberPrefabs.Length - 1);
-
-        GameObject prefab = damageNumberPrefabs[index];
-
-        // 적 위치(또는 화면 중앙)에 생성
-        Vector3 spawnPos = new Vector3(0, 2.5f, 0);
-        Instantiate(prefab, spawnPos, Quaternion.identity);
-    }
-
-    IEnumerator EnemyPattern_co()
-    {
-        yield return new WaitForSeconds(0.5f);
-
-        // [유니] 패턴에 따라 박스 크기 정하기 (랜덤 예시)
-        // 나중엔 PatternManager가 패턴이랑 박스 인덱스를 같이 주면 좋아!
-        currentBoxIndex = Random.Range(0, battleBoxes.Length);
-        ChangeState(BattleState.EnemyTurn); // 박스 갱신을 위해 상태 재호출 (혹은 여기서 SetActive)
-
-        if (patternManager != null)
-        {
-            patternManager.StartPattern(targetEnemy, Vector3.zero);
-        }
-
-        yield return new WaitForSeconds(3.0f); // 패턴 지속 시간
-
-        if (patternManager != null) patternManager.StopMonsterAttack();
-
-        ChangeState(BattleState.Dialogue);
-    }
-
-    void CloseAllBattleBoxes()
-    {
-        if (battleBoxes == null) return;
-        foreach (var box in battleBoxes)
-        {
-            if (box != null) box.SetActive(false);
-        }
-    }
-
-    void BattleEnd()
-    {
-        Debug.Log("전투 승리!");
-        // SceneManager.LoadScene("MainGame");
+        Instantiate(damageNumberPrefabs[index], new Vector3(0, 2.5f, 0), Quaternion.identity);
     }
 }
