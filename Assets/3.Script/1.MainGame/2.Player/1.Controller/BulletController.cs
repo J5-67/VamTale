@@ -12,7 +12,7 @@ public class BulletController : MonoBehaviour
 
     private void Awake()
     {
-        rg = GetComponent<Rigidbody2D>();
+        TryGetComponent<Rigidbody2D>(out rg);
     }
 
     public void Init(float damage, int per, Vector3 dir, float speed = 15f)
@@ -53,7 +53,7 @@ public class BulletController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Area") || per == -100)
+        if (!collision.CompareTag("Area") || per == -1)
         {
             return;
         }

@@ -30,6 +30,13 @@ public class PatternManager : MonoBehaviour
     public void StartShieldPattern()
     {
         StartCoroutine(SpawnSpears_co());
+
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    StartCirclePattern();
+        //    //StartRandomPattern();
+        //    //StartShieldPattern();
+        //}
     }
 
     public void StopMonsterAttack()
@@ -56,41 +63,75 @@ public class PatternManager : MonoBehaviour
 
     void SpawnSpear(int dir, bool isTrick)
     {
-        if (spawnPoints == null || spawnPoints.Length < 4) return;
+        // [유니 안전장치 1] 스폰 포인트 배열이 없거나 개수가 부족해!
+        if (spawnPoints == null || spawnPoints.Length < 4)
+        {
+            Debug.LogError("오빠! PatternManager에 스폰 포인트 4개를 연결 안 한 것 같아!");
+            return;
+        }
+
+        // [유니 안전장치 2] 배열은 있는데, 그 안의 내용물이 비었어!
+        if (spawnPoints[dir] == null)
+        {
+            Debug.LogError($"오빠! 스폰 포인트 {dir}번 자리가 비어있어! (None 상태)");
+            return;
+        }
+
+        // [유니 안전장치 3] 플레이어를 못 찾았어!
+        if (playerTransform == null)
+        {
+            Debug.LogError("오빠! 플레이어를 못 찾겠어! 하트 오브젝트의 Tag가 'Player'인지 확인해 줘!");
+            return;
+        }
 
         Vector3 rawPos = spawnPoints[dir].position;
 
-        float playerZ = playerTransform.position.z;
+        float playerZ = playerTransform != null ? playerTransform.position.z : -10f;
         Vector3 spawnPos = new Vector3(rawPos.x, rawPos.y, playerZ);
 
         Quaternion rotation = Quaternion.identity;
 
-        // [유니] "오른쪽을 보는 이미지" 기준 회전값 설정
-        // isTrick이면 정반대로 돌려버리기! (180도 추가)
+        // "오른쪽을 보는 이미지" 기준 회전값 설정
         float trickOffset = isTrick ? 180f : 0f;
 
         switch (dir)
         {
-            case 0: // 위에서 등장 (아래를 봐야 함: -90도)
-                rotation = Quaternion.Euler(0, 0, -90 + trickOffset); 
+            case 0: // 위 (아래를 봄)
+                rotation = Quaternion.Euler(0, 0, -90 + trickOffset);
                 break;
-            case 1: // 아래에서 등장 (위를 봐야 함: 90도)
+            case 1: // 아래 (위를 봄)
                 rotation = Quaternion.Euler(0, 0, 90 + trickOffset);
                 break;
-            case 2: // 왼쪽에서 등장 (오른쪽을 봐야 함: 0도)
+            case 2: // 왼쪽 (오른쪽을 봄)
                 rotation = Quaternion.Euler(0, 0, 0 + trickOffset);
                 break;
-            case 3: // 오른쪽에서 등장 (왼쪽을 봐야 함: 180도)
+            case 3: // 오른쪽 (왼쪽을 봄)
                 rotation = Quaternion.Euler(0, 0, 180 + trickOffset);
                 break;
         }
 
-        GameObject obj = Instantiate(spearPrefab, spawnPos, rotation);
-        
-        SpearController spear = obj.GetComponent<SpearController>();
-        spear.Init(isTrick, playerTransform); 
+        // [유니 안전장치 4] 프리팹 연결 안 됨!
+        if (spearPrefab == null)
+        {
+            Debug.LogError("Spear Prefab 화살표 프리팹 문제");
+            return;
+        }
 
-        activeSpears.Add(spear);
+        GameObject obj = Instantiate(spearPrefab, spawnPos, rotation);
+
+        SpearController spear = obj.GetComponent<SpearController>();
+
+        if (playerTransform == null)
+        {
+            Debug.LogError("SetTarget 호출 문제");
+            return;
+        }
+
+        if (spear != null)
+        {
+            spear.Init(isTrick, playerTransform);
+            activeSpears.Add(spear);
+        }
     }
 
     void UpdateNearestSpear()
@@ -208,5 +249,11 @@ public class PatternManager : MonoBehaviour
             currentDelay = Mathf.Max(minDelay, currentDelay - 0.05f);
             spawnInterval = Mathf.Max(0.2f, spawnInterval - 0.05f);
         }
+    }
+
+    public void SetTarget(Transform target)
+    {
+        playerTransform = target;
+        Debug.Log($"[PatternManager] 타겟 설정 완료: {target.name}");
     }
 }

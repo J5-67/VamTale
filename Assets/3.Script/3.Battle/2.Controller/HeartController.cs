@@ -40,8 +40,6 @@ public class HeartController : MonoBehaviour
 
         Vector2 nextPos = rb.position + moveInput * moveSpeed * Time.fixedDeltaTime;
 
-        // [유니] 설정된 범위(Bound) 안으로 가두기!
-        // (값이 0이면 제한 없다고 칠 수도 있지만, 배틀에선 무조건 제한이 있어야 해)
         if (minBound != Vector2.zero || maxBound != Vector2.zero)
         {
             nextPos.x = Mathf.Clamp(nextPos.x, minBound.x, maxBound.x);
@@ -51,11 +49,8 @@ public class HeartController : MonoBehaviour
         rb.MovePosition(nextPos);
     }
 
-    // [유니 핵심] 외부(BattleManager)에서 이동 범위를 정해주는 함수!
     public void SetBoundaries(Bounds bounds)
     {
-        // Bounds.min/max는 월드 좌표 기준이라 아주 정확해!
-        // 하트 크기(반지름)만큼 살짝 빼주면 더 완벽하게 안쪽에 갇혀. (여기선 0.15f 정도 여유 둠)
         float padding = 0.15f;
         minBound = new Vector2(bounds.min.x + padding, bounds.min.y + padding);
         maxBound = new Vector2(bounds.max.x - padding, bounds.max.y - padding);
@@ -65,7 +60,11 @@ public class HeartController : MonoBehaviour
     {
         isBattleMode = isActive;
         gameObject.SetActive(isActive);
-        if (isActive) transform.localPosition = Vector3.zero;
+
+        if (isActive)
+        {
+            transform.position = new Vector3(0f, 0f, -10f);
+        }
     }
 
     public void OnDamage(float damage)
@@ -73,7 +72,6 @@ public class HeartController : MonoBehaviour
         if (isInvincible) return;
 
         GameManager.instance.health -= damage;
-        Debug.Log($"으악! 남은 체력: {GameManager.instance.health}");
 
         if (GameManager.instance.health <= 0)
         {
@@ -102,7 +100,7 @@ public class HeartController : MonoBehaviour
     {
         if (collision.CompareTag("EnemyBullet") || collision.CompareTag("Spear"))
         {
-            OnDamage(10f); // 데미지 수치는 나중에 데이터에서 가져오면 더 좋아!
+            OnDamage(10f);
         }
     }
 }

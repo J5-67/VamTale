@@ -19,10 +19,9 @@ public class Item : MonoBehaviour
 
     private void Awake()
     {
-        // [유니] 아이콘 찾기 안전장치 (2번째 이미지가 없을 수도 있으니)
         Image[] images = GetComponentsInChildren<Image>();
         if (images.Length > 1) icon = images[1];
-        else icon = images[0]; // 혹시 몰라 0번이라도 넣음
+        else icon = images[0];
 
         if (data != null) icon.sprite = data.itemIcon;
 
@@ -38,7 +37,6 @@ public class Item : MonoBehaviour
 
     private void OnEnable()
     {
-        // [유니 안전장치] 데이터나 UI가 없으면 실행하지 마! (에러 방지)
         if (data == null || levelText == null || descText == null) return;
 
         levelText.text = string.Format("{0:D2}", level + 1);
@@ -83,14 +81,13 @@ public class Item : MonoBehaviour
                 }
                 break;
 
-            default: // Heal 등
+            default:
                 descText.text = string.Format(data.itemDesc);
                 GetComponent<Button>().interactable = true;
                 break;
         }
     }
 
-    // [유니 수정] LevelUp.cs에서 쓰기 위해 public으로 변경!
     public bool CheckEvolution()
     {
         if (data.megaWeapon == null)
@@ -99,7 +96,6 @@ public class Item : MonoBehaviour
         Gear[] gears = GameManager.instance.player.GetComponentsInChildren<Gear>();
         foreach (Gear g in gears)
         {
-            // [중요] 장비가 만렙(인덱스 마지막)인지 확인
             if (g.data == data.needItem && g.level == g.data.damages.Length - 1)
             {
                 return true;

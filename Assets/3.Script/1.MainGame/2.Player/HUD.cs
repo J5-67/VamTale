@@ -31,7 +31,6 @@ public class HUD : MonoBehaviour
     {
         if(GameManager.instance == null || GameManager.instance.player == null)
         {
-            Debug.Log("HUD instance error");
             return;
         }
 

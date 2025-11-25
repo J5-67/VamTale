@@ -7,8 +7,6 @@ public class LevelUp : MonoBehaviour
 {
     public RectTransform rect;
     Item[] items;
-
-    // [유니] 회복 아이템을 기억할 변수
     Item healItem;
 
     private void Awake()
@@ -16,7 +14,6 @@ public class LevelUp : MonoBehaviour
         TryGetComponent(out rect);
         items = GetComponentsInChildren<Item>(true);
 
-        // [유니] 회복약 미리 찾기
         foreach (Item item in items)
         {
             if (item.data != null && item.data.itemType == ItemType.Heal)

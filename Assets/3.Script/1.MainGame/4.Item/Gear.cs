@@ -87,23 +87,16 @@ public class Gear : MonoBehaviour
 
         foreach (WeaponController weapon in weapons)
         {
-            // [유니 수정] 현재 weapon.damage를 쓰지 않고, 데이터 원본에서 계산!
-            // 1. 무기의 기본 데미지 가져오기
             float baseDamage = weapon.data.baseDamage;
             float levelBonus = 0;
 
-            // 2. 무기 레벨에 따른 추가 데미지 계산 (Item.cs 로직과 동일하게!)
-            // weapon.level은 현재 무기의 레벨이야.
-            // 주의: 배열 범위를 넘지 않게 체크!
             if (weapon.level < weapon.data.damages.Length)
             {
                 levelBonus = baseDamage * weapon.data.damages[weapon.level];
             }
 
-            // 3. 순수 무기 데미지 (기어 효과 적용 전)
             float originalDamage = baseDamage + levelBonus;
 
-            // 4. 이제 스파게티(기어) 효과 적용! (순수 데미지 + 기어 보너스)
             weapon.damage = originalDamage + (originalDamage * rate);
         }
     }

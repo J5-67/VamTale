@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -24,6 +26,9 @@ public class GameManager : MonoBehaviour
     public int exp;
     public int[] nextExp = { 3, 5, 7, 9, 150, 210, 280, 360, 450, 600 };
 
+    [Header("¿¬Ãâ")]
+    public Image fadePanel;
+
     private void Awake()
     {
         instance = this;
@@ -32,6 +37,12 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        if (fadePanel != null)
+        {
+            fadePanel.gameObject.SetActive(false);
+            fadePanel.color = new Color(1, 1, 1, 0);
+        }
+
         if (PlayerPrefs.GetInt("IsRestart") == 1)
         {
             PlayerPrefs.SetInt("IsRestart", 0);
@@ -67,6 +78,12 @@ public class GameManager : MonoBehaviour
         {
             gameTime = maxGameTime;
         }
+
+        if (gameTime >= maxGameTime)
+        {
+            gameTime = maxGameTime;
+            StartCoroutine(ToBattleScene_co());
+        }
     }
 
     public void GetExp()
@@ -91,5 +108,32 @@ public class GameManager : MonoBehaviour
     {
         isLive = true;
         Time.timeScale = 1;
+    }
+
+    IEnumerator ToBattleScene_co()
+    {
+        isLive = false;
+
+        if (fadePanel != null)
+        {
+            fadePanel.gameObject.SetActive(true);
+            float duration = 2.0f;
+            float t = 0;
+
+            while (t < duration)
+            {
+                t += Time.deltaTime;
+                float alpha = t / duration;
+                fadePanel.color = new Color(1, 1, 1, alpha);
+                yield return null;
+            }
+            fadePanel.color = Color.white;
+        }
+        else
+        {
+            yield return new WaitForSeconds(1.0f);
+        }
+
+        SceneManager.LoadScene("Battle");
     }
 }

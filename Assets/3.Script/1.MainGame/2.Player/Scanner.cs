@@ -28,10 +28,10 @@ public class Scanner : MonoBehaviour
         {
             Vector3 myPos = transform.position;
             Vector3 targetPos = target.transform.position;
-
             float curDiff = Vector3.Distance(myPos, targetPos);
 
-            if(curDiff < diff)
+            // 현재 거리(curDiff)가 기록된 거리(diff)보다 작으면 갱신
+            if (curDiff < diff)
             {
                 diff = curDiff;
                 result = target.transform;
@@ -44,7 +44,7 @@ public class Scanner : MonoBehaviour
     Transform GetFarthest()
     {
         Transform result = null;
-        float diff = 0; // 0부터 시작해서 점점 큰 값을 찾을 거야.
+        float diff = 0;
 
         foreach (RaycastHit2D target in targets)
         {
@@ -52,7 +52,7 @@ public class Scanner : MonoBehaviour
             Vector3 targetPos = target.transform.position;
             float curDiff = Vector3.Distance(myPos, targetPos);
 
-            // [유니] 현재 거리(curDiff)가 기록된 거리(diff)보다 크면 갱신!
+            // 현재 거리(curDiff)가 기록된 거리(diff)보다 크면 갱신
             if (curDiff > diff)
             {
                 diff = curDiff;

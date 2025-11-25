@@ -32,6 +32,9 @@ public class GameOver : MonoBehaviour
     [TextArea]
     public string dialogueMessage = "You cannot give up just yet...\nDon't lose hope!\nStay determined!";
 
+    [SerializeField]
+    private Image whiteFadePanel;
+
     [Header("--- UI ---")]
     [SerializeField]
     private TMP_Text gameOverText;
@@ -50,14 +53,35 @@ public class GameOver : MonoBehaviour
     private void Start()
     {
         if (giveup != null)
+        {
             giveup.onClick.AddListener(OnClickGiveUp);
+        }
 
         if (notgiveup != null)
+        {
             notgiveup.onClick.AddListener(OnClickNotGiveUp);
+        }
 
-        if (gameOverText != null) gameOverText.text = "";
-        if (giveup != null) giveup.gameObject.SetActive(false);
-        if (notgiveup != null) notgiveup.gameObject.SetActive(false);
+        if (gameOverText != null)
+        {
+            gameOverText.text = "";
+        }
+
+        if (giveup != null)
+        {
+            giveup.gameObject.SetActive(false);
+        }
+
+        if (notgiveup != null)
+        {
+            notgiveup.gameObject.SetActive(false);
+        }
+
+        if (whiteFadePanel != null)
+        {
+            whiteFadePanel.gameObject.SetActive(true);
+            whiteFadePanel.color = new Color(1, 1, 1, 0);
+        }
 
         if (gameOver != null)
         {
@@ -74,11 +98,11 @@ public class GameOver : MonoBehaviour
 
     public void OnClickGiveUp()
     {
-        #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-        #else
-                    Application.Quit(); // 실제 빌드된 게임에서는 이게 꺼주는 거야!
-        #endif
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+                    Application.Quit();
+#endif
     }
 
     public void OnClickNotGiveUp()
@@ -103,14 +127,29 @@ public class GameOver : MonoBehaviour
         heartBreak.SetActive(false);
         heart.SetActive(true);
 
-        // [유니 꿀팁] 여기에 '챙!' 하는 효과음 넣으면 진짜 멋있어!
-        // AudioManager.instance.Play("Heal"); 
-
         yield return new WaitForSeconds(1.5f);
+
+        if (whiteFadePanel != null)
+        {
+            float fadeDuration = 2.0f;
+            float t = 0f;
+
+            while (t < fadeDuration)
+            {
+                t += Time.deltaTime;
+                float alpha = t / fadeDuration;
+
+                whiteFadePanel.color = new Color(1, 1, 1, alpha);
+                yield return null;
+            }
+
+            whiteFadePanel.color = Color.white;
+        }
+
+        yield return new WaitForSeconds(0.5f);
 
         PlayerPrefs.SetInt("IsRestart", 1);
         PlayerPrefs.Save();
-
         SceneManager.LoadScene("MainGame");
     }
 

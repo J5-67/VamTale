@@ -9,6 +9,12 @@ EditorBuildSettings:
     path: Assets/1.Scene/MainGame.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
+    path: Assets/1.Scene/Battle.unity
+    guid: 8a25decff841a4b4da903a0efa6bcc85
+  - enabled: 1
+    path: Assets/1.Scene/GameClear.unity
+    guid: c4c93ca71fa5d6f47989f34aa57be4f7
+  - enabled: 1
     path: Assets/1.Scene/GameOver.unity
     guid: 3ce4ba3cf0d9cdf40916cdf16dd2116a
   m_configObjects:
