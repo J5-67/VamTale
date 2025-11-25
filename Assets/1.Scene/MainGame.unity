@@ -4107,12 +4107,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   player: {fileID: 1753058447}
-  isLive: 0
-  gameTime: 0
-  maxGameTime: 100
   poolManager: {fileID: 840447003}
   uiLevelUp: {fileID: 1585741903}
   startGroup: {fileID: 1211775832}
+  isLive: 0
+  gameTime: 0
+  maxGameTime: 100
   health: 0
   maxHealth: 100
   level: 0

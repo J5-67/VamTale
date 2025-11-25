@@ -9,14 +9,12 @@ public class GameManager : MonoBehaviour
 
     [Header("게임 매니저")]
     [SerializeField] public PlayerController player;
+    public PoolManager poolManager;
+    public LevelUp uiLevelUp;
+    public GameObject startGroup;
     public bool isLive;
     public float gameTime;
     public float maxGameTime = 2 * 10f;
-    public PoolManager poolManager;
-    public LevelUp uiLevelUp;
-
-    // [유니 추가] 스타트 화면(버튼 포함한 그룹)을 끄기 위해 변수 추가!
-    public GameObject startGroup;
 
     [Header("플레이어 정보")]
     public float health;
