@@ -6,8 +6,8 @@ using UnityEngine;
 public class RePosition : MonoBehaviour
 {
     [Header("Map Settings")]
-    [SerializeField] private float mapSizeX = 38f;
-    [SerializeField] private float mapSizeY = 38f;
+    //[SerializeField] private float mapSizeX = 38f;
+    //[SerializeField] private float mapSizeY = 38f;
     private Collider2D coll;
 
     private void Awake()
